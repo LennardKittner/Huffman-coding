@@ -2,17 +2,14 @@
 // Created by Lennard Kittner on 08.03.18.
 //
 
-#include <iostream>
 #include "Quicksorter.h"
 #include "Node.h"
 
-using namespace std;
-
-void Quicksorter::sort(vector<int>* a){
+void Quicksorter::sort(std::vector<int>* a){
     sort(a, 0, (*a).size()-1);
 }
 
-void Quicksorter::sort(vector<int>* a,int li, int re){
+void Quicksorter::sort(std::vector<int>* a,int li, int re){
     if (li < re) {
         int k = partition(a, li, re);
 
@@ -21,7 +18,7 @@ void Quicksorter::sort(vector<int>* a,int li, int re){
     }
 }
 
-int Quicksorter::partition(vector<int>* a, int li, int re){
+int Quicksorter::partition(std::vector<int>* a, int li, int re){
     int pivot = re;
     int j = li-1;
 
@@ -41,11 +38,11 @@ int Quicksorter::partition(vector<int>* a, int li, int re){
     return j+1;
 }
 
-void Quicksorter::sort(vector<Node*>* a){
+void Quicksorter::sort(std::vector<Node*>* a){
     sort(a, 0, a->size()-1);
 }
 
-void Quicksorter::sort(vector<Node*>* a,int li, int re){
+void Quicksorter::sort(std::vector<Node*>* a,int li, int re){
     if (li < re) {
         int k = partition(a, li, re);
 
@@ -54,7 +51,7 @@ void Quicksorter::sort(vector<Node*>* a,int li, int re){
     }
 }
 
-int Quicksorter::partition(vector<Node*>* a, int li, int re){
+int Quicksorter::partition(std::vector<Node*>* a, int li, int re){
     int pivot = re;
     int j = li-1;
 

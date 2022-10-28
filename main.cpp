@@ -4,14 +4,14 @@
 #include <map>
 #include "Quicksorter.h"
 #include "Node.h"
+#include "CLI.h"
 
-using namespace std;
-map<char, string> result;
-map<string, char> resultrev;
-map<string, int> binary;
-vector<int> times;
+std::map<char, std::string> result;
+std::map<std::string, char> resultrev;
+std::map<std::string, int> binary;
+std::vector<int> times;
 
-void processNode(string value,Node* n){
+void processNode(std::string value,Node* n){
     if (n->isSingleNode()){
         binary[value] = n->getValue0();
         return;
@@ -20,8 +20,8 @@ void processNode(string value,Node* n){
     processNode(value+"0",n->getNode0());
 }
 
-string getbinary(int n, bool b){
-    string r;
+std::string getbinary(int n, bool b){
+    std::string r;
     while (n!=0){
         r=(n%2==0 ?"0":"1")+r;
         n/=2;
@@ -42,7 +42,7 @@ int powerof(int a,int p){
     return r;
 }
 
-int getDezimal(string a){
+int getDezimal(std::string a){
     int r = 0;
     for (int i = a.size()-1;i >= 0;i--){
         r = r + (a[i] == '1' ? powerof(2, (a.size()-1)-i) : 0);
@@ -50,9 +50,9 @@ int getDezimal(string a){
     return r;
 }
 
-void generateTree(map<char,int> map){
+void generateTree(std::map<char,int> map){
     Quicksorter qs;
-    vector<Node*> nodes;
+    std::vector<Node*> nodes;
 
     for (auto const &x : map) {
         int n = x.second;
@@ -76,7 +76,7 @@ void generateTree(map<char,int> map){
 
 }
 
-void merge(bool a,map<char, int> map){
+void merge(bool a,std::map<char, int> map){
     if (a)
         for (auto const &x : map) {
             for (auto const &xx : binary)
@@ -99,16 +99,16 @@ void merge(bool a,map<char, int> map){
 }
 
 int encode(){
-    string filename;
-    ifstream file;
-    getline(cin, filename);
+    std::string filename;
+    std::ifstream file;
+    getline(std::cin, filename);
     file.open(filename);
 
     if (!file.is_open())
         return 1;
 
-    vector<char> chars;
-    map<char, int> map;
+    std::vector<char> chars;
+    std::map<char, int> map;
     char ch;
     while (file.good()) {
         file.get(ch);
@@ -129,7 +129,7 @@ int encode(){
     file.clear();
     file.seekg( 0, std::ios_base::beg );
 
-    string binaryStr =  "";
+    std::string binaryStr =  "";
     while (file.good()) {
         file.get(ch);
         if (file)
@@ -137,38 +137,38 @@ int encode(){
     }
 
     bool pedding_2B = false;
-    string binaryStrTree = "";
+    std::string binaryStrTree = "";
     if (times[times.size()-1]>255)
         pedding_2B = true;
 
-    vector<bitset<8>> binaryTree;
+    std::vector<std::bitset<8>> binaryTree;
     for (auto const &x : map){
-        binaryTree.push_back(bitset<8>((int)x.first));
+        binaryTree.push_back(std::bitset<8>((int)x.first));
         if (pedding_2B) {
-            string tmp = getbinary(x.second, pedding_2B);
-            binaryTree.push_back(bitset<8>(tmp.substr(0, 8)));
-            binaryTree.push_back(bitset<8>(tmp.substr(8, 15)));
+            std::string tmp = getbinary(x.second, pedding_2B);
+            binaryTree.push_back(std::bitset<8>(tmp.substr(0, 8)));
+            binaryTree.push_back(std::bitset<8>(tmp.substr(8, 15)));
         }
         else
-            binaryTree.push_back(bitset<8>(getbinary(x.second,pedding_2B)));
+            binaryTree.push_back(std::bitset<8>(getbinary(x.second,pedding_2B)));
     }
-    binaryTree.push_back(bitset<8>(0));
+    binaryTree.push_back(std::bitset<8>(0));
     if (!pedding_2B)
-        binaryTree.push_back(bitset<8>(0));
+        binaryTree.push_back(std::bitset<8>(0));
     else {
-        binaryTree.push_back(bitset<8>(0));
-        binaryTree.push_back(bitset<8>(0));
+        binaryTree.push_back(std::bitset<8>(0));
+        binaryTree.push_back(std::bitset<8>(0));
     }
 
     int p = 8-binaryStr.size()%8;
     for (int i = 0;i < p;i++)
         binaryStr = binaryStr+"0";
 
-    vector<bitset<8>> bstxt;
+    std::vector<std::bitset<8>> bstxt;
     for (int i = 0;i < binaryStr.size();i = i+8)
-        bstxt.push_back(bitset<8>(binaryStr.substr(i,8)));
+        bstxt.push_back(std::bitset<8>(binaryStr.substr(i,8)));
 
-    ofstream output(filename+".huff"+ (pedding_2B ? "16" : "8"),ios::out | ios::binary | ios::app);
+    std::ofstream output(filename+".huff"+ (pedding_2B ? "16" : "8"),std::ios::out | std::ios::binary | std::ios::app);
 
     for (int i = 0;i < binaryTree.size();i++) {
         output.write((char*)&binaryTree[i],sizeof(char));
@@ -178,19 +178,19 @@ int encode(){
         output.write((char*)&bstxt[i],sizeof(char));
     }
     output.close();
-    cout << "finished\n";
+    std::cout << "finished\n";
     return 0;
 }
 
 int decode(){
-    string filename;
-    ifstream file;
-    getline(cin, filename);
-    file.open(filename, ios::binary);
+    std::string filename;
+    std::ifstream file;
+    getline(std::cin, filename);
+    file.open(filename, std::ios::binary);
 
     if (!file.is_open())
         return 1;
-    string binary;
+    std::string binary;
     char c;
     while (file.get(c)) {
         for (int i = 7; i >= 0; i--)
@@ -200,7 +200,7 @@ int decode(){
     int pedding = filename.substr(filename.find_last_of(".huff")+1,1) == "8" ? 8 : 16;
 
     int l =0;
-    map<char, int> map;
+    std::map<char, int> map;
     int till = pedding+8;
     for (int i = 0;pedding == 8 ? binary.substr(i, pedding+8) != "0000000000000000" : binary.substr(i, pedding+8) != "000000000000000000000000";i=i+pedding+8) {
         char cc = (char)getDezimal(binary.substr(i,8));
@@ -210,14 +210,14 @@ int decode(){
         till = till+pedding+8;
     }
 
-    string binarytxt = binary.substr(till,binary.size()-till-1);
-    string resulttxt = "";
+    std::string binarytxt = binary.substr(till,binary.size()-till-1);
+    std::string resulttxt = "";
 
     generateTree(map);
 
     merge(false, map);
 
-    string str = "";
+    std::string str = "";
 
     for (int i = 0;i < binarytxt.size();i++){
         str += binarytxt[i];
@@ -230,25 +230,28 @@ int decode(){
         }
     }
 
-    ofstream output;
+    std::ofstream output;
     output.open(filename.substr(0,filename.find_last_of(".")));
     output << resulttxt;
     output.close();
 
-    cout << "finished\n";
+    std::cout << "finished\n";
     return 0;
 }
 
-int main() {
-    string en_de;
-    cout << "type en for encode and de for decode\n";
-    getline(cin, en_de);
+//TODO: Before doing something else check if it still works
+int main(int argc, char *argv[]) {
+    CLI cli(argc, argv);
+
+    std::string en_de;
+    std::cout << "type en for encode and de for decode\n";
+    getline(std::cin, en_de);
     if (en_de == "en") {
-        cout << "type in path of file\n";
+        std::cout << "type in path of file\n";
         return encode();
     }
     else if (en_de == "de") {
-        cout << "type in path of file\n";
+        std::cout << "type in path of file\n";
         return decode();
     }
     return 1;
