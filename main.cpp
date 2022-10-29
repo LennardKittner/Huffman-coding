@@ -239,14 +239,25 @@ int decode(){
     return 0;
 }
 
+
+std::string help = "Options\n"
+                   "  --help, -h        = Print help.\n"
+                   "  --out, -o <file>  = Specify output file.\n"
+                   "  --in, -i  <file>  = Specify input file.\n"
+                   "  --tree, -t <file> = Specify the huffman tree file.\n"
+                   "  --encode, -en     = Encode the input file and write the compressed file to the output file.\n"
+                   "  --decode, -de     = Decode the input file and write the decompressed file to the output file.\n";
+
 int main(int argc, char *argv[]) {
     CLI cli(argc, argv);
 
-    //TODO: Help message
     if (cli.args->front().type == HELP) {
-        std::cout << "Help";
+        std::cout << help;
     } else if (cli.args->front().type == ERROR) {
         std::cout << "Huffman Error: Unknown argument " << cli.args->front().arg << std::endl;
+        std::cout << "Huffman Error: Run 'huffman --help' for all supported options." << std::endl;
+    } else if (cli.args->front().type == ERRORFILE) {
+        std::cout << "Huffman Error: no such file or directory: '" << cli.args->front().arg << "'" << std::endl;
         std::cout << "Huffman Error: Run 'huffman --help' for all supported options." << std::endl;
     }
 

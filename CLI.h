@@ -13,8 +13,10 @@ enum Flag {
     OUT,
     IN,
     TREE,
-    MODE,
-    ERROR
+    ENCODE,
+    DECODE,
+    ERROR,
+    ERRORFILE
 };
 
 struct Command {
@@ -30,8 +32,7 @@ private:
     int argc;
     char **argv;
     std::vector<Command>* parse();
-    Command* parseCommand(const std::string&);
-    Command* parseCommand(std::string, std::string);
+    int parseCommand(char*[],int , std::vector<Command>*);
 };
 
 
