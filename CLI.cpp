@@ -14,8 +14,8 @@ CLI::CLI(int argc, char *argv[]) {
 }
 
 
-int CLI::parseCommand(char* args[], int len, std::vector<Command>* commands) {
-    Command command = {ERROR, ""};
+int CLI::parseCommand(char* args[], int len, std::map<Flag, std::string>* commands) {
+    Flag flag = ERROR;
     int offset = 2;
     std::string arg1(args[0]);
     std::string arg2(len > 1 ? args[1] : "");
@@ -23,60 +23,48 @@ int CLI::parseCommand(char* args[], int len, std::vector<Command>* commands) {
     bool arg2Exists = len > 1 && fs::exists(arg2File);
 
     if (arg1 == "-h" || arg1 == "--help") {
-        command.type = HELP;
-        command.arg = arg2;
+        flag = HELP;
+        arg2 = "";
         offset = len;
     } else if (arg1 == "-o" || arg1 == "--out") {
-        if (!arg2Exists) {
-            command.type = ERRORFILE;
-            command.arg = arg2;
-            offset = len;
-        } else {
-            command.type = OUT;
-            command.arg = arg2;
-        }
+        flag = OUT;
     } else if (arg1 == "-i" || arg1 == "--in") {
         if (!arg2Exists) {
-            command.type = ERRORFILE;
-            command.arg = arg2;
+            flag = ERRORFILE;
             offset = len;
         } else {
-            command.type = IN;
-            command.arg = arg2;
+            flag = IN;
         }
     } else if (arg1 == "-t" || arg1 == "--tree") {
         if (!arg2Exists) {
-            command.type = ERRORFILE;
-            command.arg = arg2;
+            flag = ERRORFILE;
             offset = len;
         } else {
-            command.type = TREE;
-            command.arg = arg2;
+            flag = TREE;
         }
     } else if (arg1 == "-en" || arg1 == "--encode") {
-        command.type = ENCODE;
-        command.arg = "";
+        flag = ENCODE;
+        arg2 = "";
         offset = 1;
     } else if (arg1 == "-de" || arg1 == "--decode") {
-        command.type = DECODE;
-        command.arg = "";
+        flag = DECODE;
+        arg2 = "";
         offset = 1;
     } else {
-        command.type = ERROR;
-        command.arg = arg1 + " " + arg2;
+        flag = ERROR;
+        arg2 = arg1 + " " + arg2;
         offset = len;
     }
-    commands->push_back(command);
+    (*commands)[flag] = arg2;
 
     return offset;
 }
 
-std::vector<Command>* CLI::parse() {
-    auto* args = new std::vector<Command>();
+std::map<Flag, std::string>* CLI::parse() {
+    auto* args = new std::map<Flag, std::string>();
 
     if (argc < 2) {
-        Command command = {HELP, ""};
-        args->push_back(command);
+        (*args)[HELP] = "";
         return args;
     }
 

@@ -248,16 +248,20 @@ std::string help = "Options\n"
                    "  --encode, -en     = Encode the input file and write the compressed file to the output file.\n"
                    "  --decode, -de     = Decode the input file and write the decompressed file to the output file.\n";
 
+//TODO: move stuff away from main
+//TODO: remove pointer and use smart pointer instead
+//TODO: use the commandline arguments
+//TODO: set up git actions
 int main(int argc, char *argv[]) {
     CLI cli(argc, argv);
 
-    if (cli.args->front().type == HELP) {
+    if (cli.args->count(HELP)) {
         std::cout << help;
-    } else if (cli.args->front().type == ERROR) {
-        std::cout << "Huffman Error: Unknown argument " << cli.args->front().arg << std::endl;
+    } else if (cli.args->count(ERROR)) {
+        std::cout << "Huffman Error: Unknown argument '" << (*cli.args)[ERROR] << "'" << std::endl;
         std::cout << "Huffman Error: Run 'huffman --help' for all supported options." << std::endl;
-    } else if (cli.args->front().type == ERRORFILE) {
-        std::cout << "Huffman Error: no such file or directory: '" << cli.args->front().arg << "'" << std::endl;
+    } else if (cli.args->count(ERRORFILE)) {
+        std::cout << "Huffman Error: no such file or directory: '" << (*cli.args)[ERRORFILE] << "'" << std::endl;
         std::cout << "Huffman Error: Run 'huffman --help' for all supported options." << std::endl;
     }
 

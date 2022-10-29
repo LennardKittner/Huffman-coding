@@ -6,7 +6,7 @@
 #define HUFFMAN_CLI_H
 
 #include <string>
-#include <vector>
+#include <map>
 
 enum Flag {
     HELP,
@@ -19,20 +19,15 @@ enum Flag {
     ERRORFILE
 };
 
-struct Command {
-    Flag type;
-    std::string arg;
-};
-
 class CLI {
 public:
     CLI(int, char**);
-    std::vector<Command>* args;
+    std::map<Flag, std::string>* args;
 private:
     int argc;
     char **argv;
-    std::vector<Command>* parse();
-    int parseCommand(char*[],int , std::vector<Command>*);
+    std::map<Flag, std::string>* parse();
+    int parseCommand(char*[],int , std::map<Flag, std::string>*);
 };
 
 
