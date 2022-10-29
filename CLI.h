@@ -5,14 +5,33 @@
 #ifndef HUFFMAN_CLI_H
 #define HUFFMAN_CLI_H
 
+#include <string>
+#include <vector>
+
+enum Flag {
+    HELP,
+    OUT,
+    IN,
+    TREE,
+    MODE,
+    ERROR
+};
+
+struct Command {
+    Flag type;
+    std::string arg;
+};
 
 class CLI {
 public:
     CLI(int, char**);
+    std::vector<Command>* args;
 private:
     int argc;
     char **argv;
-    void parse(int, char**);
+    std::vector<Command>* parse();
+    Command* parseCommand(const std::string&);
+    Command* parseCommand(std::string, std::string);
 };
 
 

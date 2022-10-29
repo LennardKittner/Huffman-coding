@@ -239,20 +239,16 @@ int decode(){
     return 0;
 }
 
-//TODO: Before doing something else check if it still works
 int main(int argc, char *argv[]) {
     CLI cli(argc, argv);
 
-    std::string en_de;
-    std::cout << "type en for encode and de for decode\n";
-    getline(std::cin, en_de);
-    if (en_de == "en") {
-        std::cout << "type in path of file\n";
-        return encode();
+    //TODO: Help message
+    if (cli.args->front().type == HELP) {
+        std::cout << "Help";
+    } else if (cli.args->front().type == ERROR) {
+        std::cout << "Huffman Error: Unknown argument " << cli.args->front().arg << std::endl;
+        std::cout << "Huffman Error: Run 'huffman --help' for all supported options." << std::endl;
     }
-    else if (en_de == "de") {
-        std::cout << "type in path of file\n";
-        return decode();
-    }
-    return 1;
+
+    return 0;
 }
