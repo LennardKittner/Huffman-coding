@@ -22,12 +22,12 @@ enum Flag {
 class CLI {
 public:
     CLI(int, char**);
-    std::map<Flag, std::string>* args;
+    std::shared_ptr<std::map<Flag, std::string>> args;
 private:
     int argc;
     char **argv;
-    std::map<Flag, std::string>* parse();
-    int parseCommand(char*[],int , std::map<Flag, std::string>*);
+    std::shared_ptr<std::map<Flag, std::string>> parse();
+    std::shared_ptr<int> parseCommand(char*[],int , std::shared_ptr<std::map<Flag, std::string>>);
 };
 
 
