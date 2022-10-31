@@ -3,5 +3,5 @@ project(Huffman)
 
 set(CMAKE_CXX_STANDARD 17)
 
-set(SOURCE_FILES main.cpp Quicksorter.cpp Quicksorter.h Node.cpp Node.h CLI.cpp CLI.h HuffmanCoder.cpp HuffmanCoder.h utils.h utils.cpp)
+set(SOURCE_FILES main.cpp Quicksorter.cpp Quicksorter.h Node.h CLI.cpp CLI.h HuffmanCoder.cpp HuffmanCoder.h utils.h utils.cpp MinHeap.cpp MinHeap.h)
 add_executable(Huffman ${SOURCE_FILES})

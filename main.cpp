@@ -12,7 +12,6 @@ std::string help = "Options\n"
                    "  --encode, -en     = Encode the input file and write the compressed file to the output file.\n"
                    "  --decode, -de     = Decode the input file and write the decompressed file to the output file.\n";
 
-//TODO: remove pointer and use smart pointer instead
 //TODO: set up git actions
 int main(int argc, char *argv[]) {
     CLI cli(argc, argv);

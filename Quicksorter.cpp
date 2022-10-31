@@ -52,6 +52,7 @@ void Quicksorter::sort(std::vector<Node*>* a,int li, int re){
 }
 
 int Quicksorter::partition(std::vector<Node*>* a, int li, int re){
+    /*
     int pivot = re;
     int j = li-1;
 
@@ -69,6 +70,7 @@ int Quicksorter::partition(std::vector<Node*>* a, int li, int re){
     (*a)[j+1] = tmp;
 
     return j+1;
+     */
 }
 
 Quicksorter::~Quicksorter() {}
