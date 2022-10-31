@@ -8,6 +8,7 @@
 #include <map>
 #include <vector>
 #include "Node.h"
+#include "BitMap.h"
 
 class HuffmanCoder {
 public:
@@ -23,8 +24,12 @@ private:
     std::map<std::string, char> resultRev;
     std::map<std::string, int> binary;
     std::shared_ptr<Node> generateTree(const std::map<char, int>& map);
-    std::shared_ptr<std::map<char, std::vector<char>>> buildLookUpTable(std::shared_ptr<Node>);
-    void traverseTree(std::shared_ptr<Node>, std::vector<char>, std::shared_ptr<std::map<char, std::vector<char>>>);
+    std::shared_ptr<std::map<char, BitMap>> buildLookUpTable(std::shared_ptr<Node>);
+    void traverseTree(std::shared_ptr<Node>, BitMap, std::shared_ptr<std::map<char, BitMap>>);
+    std::shared_ptr<std::vector<char>> encodeLookUpTable(std::shared_ptr<std::map<char, BitMap>>);
+    std::shared_ptr<std::map<char, BitMap>> decodeLookUpTable(std::shared_ptr<std::vector<char>>);
+    std::shared_ptr<BitMap> encodeText(std::string ,std::shared_ptr<std::map<char, BitMap>>);
+    std::string decodeText();
 };
 
 

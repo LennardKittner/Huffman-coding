@@ -16,21 +16,21 @@ HuffmanCoder::HuffmanCoder(std::string input, std::string output, std::string tr
     this->treePath = tree;
 }
 
-void HuffmanCoder::traverseTree(std::shared_ptr<Node> tree, std::vector<char> buff, std::shared_ptr<std::map<char, std::vector<char>>> result) {
+void HuffmanCoder::traverseTree(std::shared_ptr<Node> tree, BitMap buff, std::shared_ptr<std::map<char, BitMap>> result) {
     if (tree->content != 0) {
         (*result)[tree->content] = buff;
         return;
     }
-    std::vector<char> rightBuffer(buff);
-    buff.push_back(0);
-    rightBuffer.push_back(1);
+    BitMap rightBuffer(buff);
+    buff.pushBack(false);
+    rightBuffer.pushBack(true);
     traverseTree(tree->left, buff, result);
     traverseTree(tree->right, rightBuffer, result);
 }
 
-std::shared_ptr<std::map<char, std::vector<char>>> HuffmanCoder::buildLookUpTable(std::shared_ptr<Node> tree) {
-    auto lookUpTable = std::make_shared<std::map<char, std::vector<char>>>();
-    std::vector<char> buff;
+std::shared_ptr<std::map<char, BitMap>> HuffmanCoder::buildLookUpTable(std::shared_ptr<Node> tree) {
+    auto lookUpTable = std::make_shared<std::map<char, BitMap>>();
+    BitMap buff;
     traverseTree(tree, buff, lookUpTable);
     return lookUpTable;
 }
@@ -51,8 +51,42 @@ std::shared_ptr<Node> HuffmanCoder::generateTree(const std::map<char, int>& hist
     return minHeap.pop();
 }
 
+std::shared_ptr<std::vector<char>> HuffmanCoder::encodeLookUpTable(std::shared_ptr<std::map<char, BitMap>> lookUpTable) {
+    int max = -1;
+    for (auto const &x : *lookUpTable) {
+        if (x.second.count > max)
+            max = x.second.count;
+    }
+    char byteSize = (max + 8 - 1) / 8; // This is a narrowing conversion but a Huffman code word should not be longer than 256 bytes
+    // How long are the entries?
+    auto encodedTable = std::make_shared<std::vector<char>>();
+    encodedTable->push_back(byteSize);
+    for (auto const &x : *lookUpTable) {
+        encodedTable->push_back(x.first);
+        for (int i = 0; i < x.second.content.size(); i++) {
+            encodedTable->push_back(x.second.content[i]);
+        }
+        for (int i = 0; i < byteSize - x.second.content.size(); i++) {
+            encodedTable->emplace_back(0);
+        }
+    }
+}
+
+std::shared_ptr<std::map<char, BitMap>> HuffmanCoder::decodeLookUpTable(std::shared_ptr<std::vector<char>>) {
+
+}
+
+std::shared_ptr<BitMap> HuffmanCoder::encodeText(std::string text, std::shared_ptr<std::map<char, BitMap>> lookUpTable) {
+    auto encodedText = std::make_shared<BitMap>();
+    for (char curr : text) {
+        encodedText->pushBack((*lookUpTable)[curr]);
+    }
+
+    return encodedText;
+}
+
 int HuffmanCoder::encode() {
-    std::vector<char> chars;
+    std::string text;
     std::map<char, int> histogram;
     char byte = 0;
 
@@ -62,7 +96,7 @@ int HuffmanCoder::encode() {
     }
 
     while (input_file.get(byte)) {
-        chars.push_back(byte);
+        text.push_back(byte);
         if (histogram.count(byte) == 0) {
             histogram[byte] = 0;
         }
@@ -72,52 +106,15 @@ int HuffmanCoder::encode() {
 
     auto tree = generateTree(histogram);
     auto lookUpTable = buildLookUpTable(tree);
-    /*
-    bool pedding_2B = false;
-    std::string binaryStrTree = "";
-    if (times[times.size()-1]>255)
-        pedding_2B = true;
+    //auto encodedTable = encodeLookUpTable(lookUpTable);
+    auto encodedText = encodeText(text, lookUpTable);
 
-    std::vector<std::bitset<8>> binaryTree;
-    for (auto const &x : map){
-        binaryTree.push_back(std::bitset<8>((int)x.first));
-        if (pedding_2B) {
-            std::string tmp = toBinary(x.second, pedding_2B);
-            binaryTree.push_back(std::bitset<8>(tmp.substr(0, 8)));
-            binaryTree.push_back(std::bitset<8>(tmp.substr(8, 15)));
-        }
-        else
-            binaryTree.push_back(std::bitset<8>(toBinary(x.second, pedding_2B)));
-    }
-    binaryTree.push_back(std::bitset<8>(0));
-    if (!pedding_2B)
-        binaryTree.push_back(std::bitset<8>(0));
-    else {
-        binaryTree.push_back(std::bitset<8>(0));
-        binaryTree.push_back(std::bitset<8>(0));
-    }
+    std::ofstream out(output, std::ios::out | std::ios::binary | std::ios::app);
 
-    int p = 8-binaryStr.size()%8;
-    for (int i = 0;i < p;i++)
-        binaryStr = binaryStr+"0";
+    out.write((char*)&encodedText->content[0], encodedText->content.size() * sizeof(char));
 
-    std::vector<std::bitset<8>> bstxt;
-    for (int i = 0;i < binaryStr.size();i = i+8)
-        bstxt.push_back(std::bitset<8>(binaryStr.substr(i,8)));
-
-    std::ofstream output(filename+".huff"+ (pedding_2B ? "16" : "8"),std::ios::out | std::ios::binary | std::ios::app);
-
-    for (int i = 0;i < binaryTree.size();i++) {
-        output.write((char*)&binaryTree[i],sizeof(char));
-    }
-
-    for (int i = 0;i < bstxt.size();i++) {
-        output.write((char*)&bstxt[i],sizeof(char));
-    }
-    output.close();
-    std::cout << "finished\n";
+    out.close();
     return 0;
-     */
 }
 
 int HuffmanCoder::decode() {
