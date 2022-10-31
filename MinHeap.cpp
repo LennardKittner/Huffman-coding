@@ -5,11 +5,12 @@
 #include "MinHeap.h"
 
 MinHeap::MinHeap() {
-    heap.push_back({-1}); // Dummy element
+
+    heap.emplace_back(new Node(-1, 0)); // Dummy element
 }
 
 void MinHeap::bubbleUP(unsigned long curr) {
-    if (heap[curr].count > heap[curr/2].count) {
+    if (heap[curr]->count > heap[curr/2]->count) {
         return;
     }
 
@@ -21,10 +22,10 @@ void MinHeap::bubbleUP(unsigned long curr) {
 
 void MinHeap::bubbleDown(unsigned long curr) {
     unsigned long swapWith = curr;
-    if (curr * 2 < heap.size()-1 && heap[curr].count > heap[curr * 2].count) {
+    if (curr * 2 < heap.size()-1 && heap[curr]->count > heap[curr * 2]->count) {
         swapWith = curr * 2;
     }
-    if (curr * 2 + 1 < heap.size()-1 && heap[swapWith].count > heap[curr * 2 + 1].count) {
+    if (curr * 2 + 1 < heap.size()-1 && heap[swapWith]->count > heap[curr * 2 + 1]->count) {
         swapWith = curr * 2 + 1;
     }
     if (swapWith == curr)
@@ -39,13 +40,13 @@ unsigned long MinHeap::size() {
     return heap.size()-1;
 }
 
-Node MinHeap::min() {
+std::shared_ptr<Node> MinHeap::min() {
     if (size() == 0)
         return heap[0];
     return heap[1];
 }
 
-Node MinHeap::pop() {
+std::shared_ptr<Node> MinHeap::pop() {
     if (size() == 0) {
         return heap[0];
     }
@@ -56,7 +57,7 @@ Node MinHeap::pop() {
     return oldMin;
 }
 
-void MinHeap::insert(Node node) {
+void MinHeap::insert(std::shared_ptr<Node> node) {
     heap.push_back(node);
     bubbleUP(heap.size()-1);
 }

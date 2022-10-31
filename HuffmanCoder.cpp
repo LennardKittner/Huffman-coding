@@ -4,113 +4,75 @@
 
 #include "HuffmanCoder.h"
 #include <string>
+#include <fstream>
 #include "Quicksorter.h"
+#include "MinHeap.h"
+
+namespace fs = std::filesystem;
 
 HuffmanCoder::HuffmanCoder(std::string input, std::string output, std::string tree) {
     this->input = input;
     this->output = output;
-    this->tree = tree;
+    this->treePath = tree;
 }
 
-void HuffmanCoder::processNode(std::string value, std::shared_ptr<Node> node) {
-    if (node->isSingleNode()) {
-        binary[value] = node->getValue0();
+void HuffmanCoder::traverseTree(std::shared_ptr<Node> tree, std::vector<char> buff, std::shared_ptr<std::map<char, std::vector<char>>> result) {
+    if (tree->content != 0) {
+        (*result)[tree->content] = buff;
         return;
     }
-    processNode(value + "1",node->getNode1());
-    processNode(value + "0",node->getNode0());
+    std::vector<char> rightBuffer(buff);
+    buff.push_back(0);
+    rightBuffer.push_back(1);
+    traverseTree(tree->left, buff, result);
+    traverseTree(tree->right, rightBuffer, result);
 }
 
-void HuffmanCoder::generateTree(std::map<char, int> map) {
-    /*Quicksorter qs;
-    std::vector<std::shared_ptr<Node>> nodes;
-
-    for (auto const &x : map) {
-        int n = x.second;
-        times.push_back(n);
-    }
-
-    qs.sort(&times);
-    for (int i = 0;i < times.size();i++) {
-        nodes.push_back(new Node(times[i]));
-    }
-
-    while (nodes.size() > 1){
-        nodes[0] = new Node(nodes[0],nodes[1]);
-        nodes[0] = std::make_shared<Node>():
-        nodes.erase(nodes.begin()+1);
-        qs.sort(&nodes);
-    }
-
-    Node* tree = nodes[0];
-
-    processNode("", tree);*/
+std::shared_ptr<std::map<char, std::vector<char>>> HuffmanCoder::buildLookUpTable(std::shared_ptr<Node> tree) {
+    auto lookUpTable = std::make_shared<std::map<char, std::vector<char>>>();
+    std::vector<char> buff;
+    traverseTree(tree, buff, lookUpTable);
+    return lookUpTable;
 }
 
-void HuffmanCoder::merge(bool a,std::map<char, int> map) {
-    /*
-    if (a)
-        for (auto const &x : map) {
-            for (auto const &xx : binary)
-                if (x.second == xx.second) {
-                    result[x.first] = xx.first;
-                    binary[xx.first] = -1;
-                    break;
-                }
-        }
-    else
-        for (auto const &x : binary) {
-            for (auto const &xx : map)
-                if (x.second == xx.second) {
-                    resultrev[x.first] = xx.first;
-                    map[xx.first] = -1;
-                    break;
-                }
-        }
-        */
+std::shared_ptr<Node> HuffmanCoder::generateTree(const std::map<char, int>& histogram) {
+    MinHeap minHeap;
+    for (auto const &x : histogram) {
+        auto node = std::make_shared<Node>(x.second, x.first);
+        minHeap.insert(node);
+    }
+
+    while (minHeap.size() > 1) {
+        auto min1 = minHeap.pop();
+        auto min2 = minHeap.pop();
+        auto newNode = std::make_shared<Node>(min1->count + min2->count, 0, min1, min2);
+        minHeap.insert(newNode);
+    }
+    return minHeap.pop();
 }
-
-
 
 int HuffmanCoder::encode() {
-    /*
-    std::string filename;
-    std::ifstream file;
-    getline(std::cin, filename);
-    file.open(filename);
-
-    if (!file.is_open())
-        return 1;
-
     std::vector<char> chars;
-    std::map<char, int> map;
-    char ch;
-    while (file.good()) {
-        file.get(ch);
-        if (file) {
-            if (find(chars.begin(), chars.end(), ch) != chars.end()) {
-                ++map[ch];
-            } else {
-                chars.push_back(ch);
-                map[ch] = 1;
-            }
+    std::map<char, int> histogram;
+    char byte = 0;
+
+    std::ifstream input_file(input);
+    if (!input_file.is_open()) {
+        return 1;
+    }
+
+    while (input_file.get(byte)) {
+        chars.push_back(byte);
+        if (histogram.count(byte) == 0) {
+            histogram[byte] = 0;
         }
+        histogram[byte]++;
     }
+    input_file.close();
 
-    generateTree(map);
-
-    merge(true,map);
-
-    file.clear();
-    file.seekg( 0, std::ios_base::beg );
-
-    std::string binaryStr =  "";
-    while (file.good()) {
-        file.get(ch);
-        if (file)
-            binaryStr += result[ch];
-    }
-
+    auto tree = generateTree(histogram);
+    auto lookUpTable = buildLookUpTable(tree);
+    /*
     bool pedding_2B = false;
     std::string binaryStrTree = "";
     if (times[times.size()-1]>255)

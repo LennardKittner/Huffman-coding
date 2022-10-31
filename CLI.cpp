@@ -23,9 +23,9 @@ CLI::CLI(int argc, char *argv[]) {
     }
 }
 
-std::shared_ptr<int> CLI::parseCommand(char* arguments[], int len, std::shared_ptr<std::map<Flag, std::string>> commands) {
+int CLI::parseCommand(char* arguments[], int len, std::shared_ptr<std::map<Flag, std::string>> commands) {
     Flag flag;
-    auto offset = std::make_shared<int>(2);
+    int offset = 2;
     std::string arg1(arguments[0]);
     std::string arg2(len > 1 ? arguments[1] : "");
     fs::path arg2File(arg2);
@@ -34,35 +34,35 @@ std::shared_ptr<int> CLI::parseCommand(char* arguments[], int len, std::shared_p
     if (arg1 == "-h" || arg1 == "--help") {
         flag = HELP;
         arg2 = "";
-        *offset = len;
+        offset = len;
     } else if (arg1 == "-o" || arg1 == "--out") {
         flag = OUT;
     } else if (arg1 == "-i" || arg1 == "--in") {
         if (!arg2Exists) {
             flag = ERRORFILE;
-            *offset = len;
+            offset = len;
         } else {
             flag = IN;
         }
     } else if (arg1 == "-t" || arg1 == "--tree") {
         if (!arg2Exists) {
             flag = ERRORFILE;
-            *offset = len;
+            offset = len;
         } else {
             flag = TREE;
         }
     } else if (arg1 == "-en" || arg1 == "--encode") {
         flag = ENCODE;
         arg2 = "";
-        *offset = 1;
+        offset = 1;
     } else if (arg1 == "-de" || arg1 == "--decode") {
         flag = DECODE;
         arg2 = "";
-        *offset = 1;
+        offset = 1;
     } else {
         flag = ERROR;
         arg2 = arg1 + " " + arg2;
-        *offset = len;
+        offset = len;
     }
     (*commands)[flag] = arg2;
 
@@ -79,7 +79,7 @@ std::shared_ptr<std::map<Flag, std::string>> CLI::parse() {
 
     int i = 1;
     while (i < argc) {
-        i += *parseCommand(argv+i, argc-i, commands);
+        i += parseCommand(argv+i, argc-i, commands);
     }
 
     return commands;

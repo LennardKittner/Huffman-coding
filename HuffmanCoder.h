@@ -18,16 +18,15 @@ public:
 private:
     std::string input;
     std::string output;
-    std::string tree;
-    std::map<char, std::string> result;
+    std::string treePath;
+    std::map<char, std::vector<char>> result;
     std::map<std::string, char> resultRev;
     std::map<std::string, int> binary;
-    std::vector<int> times;
-    void processNode(std::string, std::shared_ptr<Node>);
-    void generateTree(std::map<char, int> map);
-    void merge(bool a,std::map<char, int> map);
-
+    std::shared_ptr<Node> generateTree(const std::map<char, int>& map);
+    std::shared_ptr<std::map<char, std::vector<char>>> buildLookUpTable(std::shared_ptr<Node>);
+    void traverseTree(std::shared_ptr<Node>, std::vector<char>, std::shared_ptr<std::map<char, std::vector<char>>>);
 };
+
 
 
 #endif //HUFFMAN_HUFFMANCODER_H

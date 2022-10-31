@@ -12,12 +12,12 @@
 class MinHeap {
 public:
     MinHeap();
-    Node pop();
-    void insert(Node);
-    Node min();
+    std::shared_ptr<Node> pop();
+    void insert(std::shared_ptr<Node>);
+    std::shared_ptr<Node> min();
     unsigned long size();
 private:
-    std::vector<Node> heap;
+    std::vector<std::shared_ptr<Node>> heap;
     void bubbleUP(unsigned long);
     void bubbleDown(unsigned long);
 };

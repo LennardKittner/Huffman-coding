@@ -27,7 +27,7 @@ private:
     int argc;
     char **argv;
     std::shared_ptr<std::map<Flag, std::string>> parse();
-    std::shared_ptr<int> parseCommand(char*[],int , std::shared_ptr<std::map<Flag, std::string>>);
+    int parseCommand(char*[],int , std::shared_ptr<std::map<Flag, std::string>>);
 };
 
 
