@@ -26,10 +26,10 @@ private:
     std::shared_ptr<Node> generateTree(const std::map<char, int>& map);
     std::shared_ptr<std::map<char, BitMap>> buildLookUpTable(std::shared_ptr<Node>);
     void traverseTree(std::shared_ptr<Node>, BitMap, std::shared_ptr<std::map<char, BitMap>>);
-    std::shared_ptr<std::vector<char>> encodeLookUpTable(std::shared_ptr<std::map<char, BitMap>>);
-    std::shared_ptr<std::map<char, BitMap>> decodeLookUpTable(std::shared_ptr<std::vector<char>>);
+    std::shared_ptr<BitMap> encodeHistogram(const std::map<char, int>&);
+    std::shared_ptr<std::map<char, int>> decodeHistogram(const std::vector<char>&, std::shared_ptr<int>);
     std::shared_ptr<BitMap> encodeText(std::string ,std::shared_ptr<std::map<char, BitMap>>);
-    std::string decodeText();
+    std::string decodeText(std::shared_ptr<Node>, const std::vector<char>&, std::shared_ptr<int>);
 };
 
 

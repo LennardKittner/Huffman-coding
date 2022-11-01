@@ -12,10 +12,12 @@ public:
     BitMap();
     BitMap(BitMap const&);
     void pushBack(bool);
+    void pushBack(char);
+    void pushBack(int, char);
     void pushBack(BitMap);
     char get(unsigned long);
     unsigned long count;
-    std::vector<char> content;
+    std::vector<char> content; //TODO: make pointer
 };
 
 

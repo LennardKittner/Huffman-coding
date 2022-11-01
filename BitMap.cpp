@@ -30,7 +30,26 @@ void BitMap::pushBack(BitMap bitMap) {
     }
 
     for (int i = 0; i < bitMap.count; i++) {
-        pushBack(bitMap.get(i));
+        pushBack((bool) bitMap.get(i));
+    }
+}
+
+// ignore first n bits
+void BitMap::pushBack(int bits, char n) {
+    for (int i = 8 * sizeof(int)-1 -n*8; i >= 0; i--) {
+        pushBack((bool) ((bits >> i) & 1));
+    }
+}
+
+void BitMap::pushBack(char bits) {
+    if (count % 8 == 0) {
+        content.push_back(bits);
+        count += 8;
+        return;
+    }
+
+    for (int i = 8 * sizeof(char)-1; i >= 0; i--) {
+        pushBack((bool) ((bits >> i) & 1));
     }
 }
 
