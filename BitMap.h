@@ -17,7 +17,7 @@ public:
     void pushBack(BitMap);
     char get(unsigned long);
     unsigned long count;
-    std::vector<char> content; //TODO: make pointer
+    std::vector<char> content;
 };
 
 

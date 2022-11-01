@@ -70,24 +70,18 @@ std::shared_ptr<BitMap> HuffmanCoder::encodeHistogram(const std::map<char, int>&
     return encodedHistogram;
 }
 
-
-std::shared_ptr<BitMap> HuffmanCoder::encodeText(std::string text, std::shared_ptr<std::map<char, BitMap>> lookUpTable) {
+// appends the encoded Text to content. This avoids coping the buffer later.
+void HuffmanCoder::appendEncodeText(std::string text, std::shared_ptr<BitMap> content, std::shared_ptr<std::map<char, BitMap>> lookUpTable) {
     auto encodedText = std::make_shared<BitMap>();
-    //TODO: make dynamic
+    // The first byte contains the number of bits to ignore at the end.
+    // This is required because the encoded text may not be 8bit aligned and so padding is added.
     encodedText->pushBack((char) 0);
-    encodedText->pushBack((char) 0);
-    encodedText->pushBack((char) 0);
-    encodedText->pushBack((char) 0);
+    unsigned long paddingIndex = encodedText->content.size();
 
     for (char curr : text) {
         encodedText->pushBack((*lookUpTable)[curr]);
     }
-    encodedText->content[0] = (encodedText->count >> 24) & 0xff;
-    encodedText->content[1] = (encodedText->count >> 16) & 0xff;
-    encodedText->content[2] = (encodedText->count >> 8) & 0xff;
-    encodedText->content[3] = (encodedText->count >> 0) & 0xff;
-
-    return encodedText;
+    encodedText->content[paddingIndex] = 8 - encodedText->count % 8;
 }
 
 //TODO: extract file read and write from encode
@@ -113,8 +107,7 @@ int HuffmanCoder::encode() {
     auto tree = generateTree(histogram);
     auto lookUpTable = buildLookUpTable(tree);
     auto encodedHistogram = encodeHistogram(histogram);
-    auto encodedText = encodeText(text, lookUpTable);
-    encodedHistogram->pushBack(*encodedText); //TODO: maybe do it in encodeText to avoid copying twice
+    appendEncodeText(text, encodedHistogram, lookUpTable);
 
     std::ofstream out(output, std::ios::out | std::ios::binary);
 
@@ -149,15 +142,10 @@ std::string HuffmanCoder::decodeText(std::shared_ptr<Node> tree, const std::vect
     bitMap.count = encodedContent.size() * sizeof(char) * 8;
     std::string result = "";
     auto curr = tree;
-    int i = *firstChar;
-    //TODO: read dynamic
-    int length = bitMap.content[i++] << 24;
-    length += bitMap.content[i++] << 16;
-    length += bitMap.content[i++] << 8;
-    length += bitMap.content[i++];
-    length += *firstChar * sizeof(char) * 8;
+    int paddingAtTheEnd = bitMap.content[*firstChar];
+    bitMap.count -= paddingAtTheEnd;
 
-    for ( i *= sizeof(char) * 8; i < length; i++) {
+    for (int i = (*firstChar+1) * sizeof(char) * 8; i < bitMap.count; i++) {
         curr = bitMap.get(i) ? curr->right : curr->left;
         if (curr->content != 0) {
             result += curr->content;

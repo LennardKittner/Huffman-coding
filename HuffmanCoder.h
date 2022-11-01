@@ -28,7 +28,7 @@ private:
     void traverseTree(std::shared_ptr<Node>, BitMap, std::shared_ptr<std::map<char, BitMap>>);
     std::shared_ptr<BitMap> encodeHistogram(const std::map<char, int>&);
     std::shared_ptr<std::map<char, int>> decodeHistogram(const std::vector<char>&, std::shared_ptr<int>);
-    std::shared_ptr<BitMap> encodeText(std::string ,std::shared_ptr<std::map<char, BitMap>>);
+    void appendEncodeText(std::string, std::shared_ptr<BitMap> ,std::shared_ptr<std::map<char, BitMap>>);
     std::string decodeText(std::shared_ptr<Node>, const std::vector<char>&, std::shared_ptr<int>);
 };
 
