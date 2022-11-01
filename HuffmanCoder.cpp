@@ -11,8 +11,7 @@
 
 namespace fs = std::filesystem;
 
-HuffmanCoder::HuffmanCoder(std::string input, std::string tree, std::shared_ptr<int> err) {
-    this->treePath = tree;
+HuffmanCoder::HuffmanCoder(std::string input, std::shared_ptr<int> err) {
     *err = 0;
 
     char byte = 0;

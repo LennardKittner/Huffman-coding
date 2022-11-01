@@ -12,7 +12,6 @@ enum Flag {
     HELP,
     OUT,
     IN,
-    TREE,
     ENCODE,
     DECODE,
     ERROR,

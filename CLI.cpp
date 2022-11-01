@@ -15,12 +15,12 @@ CLI::CLI(int argc, char *argv[]) {
     if (args->count(OUT) == 0) {
         (*args)[OUT] = "./out.huff";
     }
-    if (args->count(TREE) == 0) {
-        (*args)[TREE] = "";
-    }
     if (args->count(ENCODE) == 0 && args->count(DECODE) == 0) {
         (*args)[ENCODE] = "";
     }
+   // if (args->count(IN) == 0 && argc > 2) {
+   //     (*args)[IN] = argv[1];
+   // }
 }
 
 int CLI::parseCommand(char* arguments[], int len, std::shared_ptr<std::map<Flag, std::string>> commands) {
@@ -43,13 +43,6 @@ int CLI::parseCommand(char* arguments[], int len, std::shared_ptr<std::map<Flag,
             offset = len;
         } else {
             flag = IN;
-        }
-    } else if (arg1 == "-t" || arg1 == "--tree") {
-        if (!arg2Exists) {
-            flag = ERRORFILE;
-            offset = len;
-        } else {
-            flag = TREE;
         }
     } else if (arg1 == "-en" || arg1 == "--encode") {
         flag = ENCODE;

@@ -8,13 +8,11 @@ std::string help = "Options\n"
                    "  --help, -h        = Print help.\n"
                    "  --out, -o <file>  = Specify output file.\n"
                    "  --in, -i  <file>  = Specify input file.\n"
-                   "  --tree, -t <file> = Specify the huffman tree file.\n"
                    "  --encode, -en     = Encode the input file and write the compressed file to the output file.\n"
                    "  --decode, -de     = Decode the input file and write the decompressed file to the output file.\n";
 
 //TODO: set up git actions
 //TODO: seg fault in config 2
-//TODO: implement or remove tree flag
 int main(int argc, char *argv[]) {
     auto err = std::make_shared<int>(1);
     CLI cli(argc, argv);
@@ -32,7 +30,7 @@ int main(int argc, char *argv[]) {
         return *err;
     }
 
-    HuffmanCoder coder((*cli.args)[IN], (*cli.args)[TREE], err);
+    HuffmanCoder coder((*cli.args)[IN], err);
     if (*err == 1) {
         std::cout << "Huffman Error: could not read file: '" << (*cli.args)[IN] << "'" << std::endl;
         return *err;

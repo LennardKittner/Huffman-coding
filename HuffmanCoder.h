@@ -14,7 +14,7 @@ class HuffmanCoder {
 public:
     std::shared_ptr<BitMap> encode();
     std::shared_ptr<std::string> decode();
-    HuffmanCoder(std::string, std::string, std::shared_ptr<int>);
+    HuffmanCoder(std::string, std::shared_ptr<int>);
 
 private:
     std::string treePath;
