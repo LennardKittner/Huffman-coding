@@ -15,9 +15,9 @@ public:
     void pushBack(char);
     void pushBack(int, char);
     void pushBack(BitMap);
-    char get(unsigned long);
+    unsigned char get(unsigned long);
     unsigned long count;
-    std::vector<char> content;
+    std::vector<unsigned char> content;
 };
 
 

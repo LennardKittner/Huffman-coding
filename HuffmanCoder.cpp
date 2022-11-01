@@ -81,7 +81,7 @@ std::shared_ptr<BitMap> HuffmanCoder::encodeHistogram(const std::map<char, int>&
 }
 
 // appends the encoded Text to content. This avoids coping the buffer later.
-void HuffmanCoder::appendEncodeText(const std::vector<char>& text, std::shared_ptr<BitMap> appendTo, std::shared_ptr<std::map<char, BitMap>> lookUpTable) {
+void HuffmanCoder::appendEncodeText(const std::vector<unsigned char>& text, std::shared_ptr<BitMap> appendTo, std::shared_ptr<std::map<char, BitMap>> lookUpTable) {
     // The first byte contains the number of bits to ignore at the end.
     // This is required because the encoded text may not be 8bit aligned and so padding is added.
     appendTo->pushBack((char) 0);
@@ -109,7 +109,7 @@ std::shared_ptr<BitMap> HuffmanCoder::encode() {
     return encodedHistogram;
 }
 
-std::shared_ptr<std::map<char, int>> HuffmanCoder::decodeHistogram(const std::vector<char>& encodedContent, std::shared_ptr<int> endIndex) {
+std::shared_ptr<std::map<char, int>> HuffmanCoder::decodeHistogram(const std::vector<unsigned char>& encodedContent, std::shared_ptr<int> endIndex) {
     char sizeInBytes = encodedContent[0];
     char length = encodedContent[1];
     auto histogram = std::make_shared<std::map<char, int>>();
@@ -128,7 +128,7 @@ std::shared_ptr<std::map<char, int>> HuffmanCoder::decodeHistogram(const std::ve
     return histogram;
 }
 
-std::shared_ptr<std::string> HuffmanCoder::decodeText(std::shared_ptr<Node> tree, const std::vector<char>& encodedContent, int firstChar) {
+std::shared_ptr<std::string> HuffmanCoder::decodeText(std::shared_ptr<Node> tree, const std::vector<unsigned char>& encodedContent, int firstChar) {
     BitMap bitMap;
     bitMap.content = encodedContent;
     bitMap.count = encodedContent.size() * sizeof(char) * 8;
@@ -155,5 +155,3 @@ std::shared_ptr<std::string> HuffmanCoder::decode() {
 
     return decodedText;
 }
-
-

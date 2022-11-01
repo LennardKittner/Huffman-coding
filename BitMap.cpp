@@ -9,7 +9,7 @@ BitMap::BitMap() {
 }
 
 BitMap::BitMap(BitMap const &copy) {
-    this->content = std::vector<char>(copy.content);
+    this->content = std::vector<unsigned char>(copy.content);
     this->count = copy.count;
 }
 
@@ -53,7 +53,7 @@ void BitMap::pushBack(char bits) {
     }
 }
 
-char BitMap::get(unsigned long i) {
+unsigned char BitMap::get(unsigned long i) {
     char value = content[i / 8];
     value = value >> (7 - (i % 8));
     value = value & 1;
