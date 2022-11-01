@@ -19,7 +19,7 @@ int main(int argc, char *argv[]) {
 
     if (cli.args->count(HELP)) {
         std::cout << help;
-        return *err;
+        return 0;
     } else if (cli.args->count(ERROR)) {
         std::cout << "Huffman Error: Unknown argument '" << (*cli.args)[ERROR] << "'" << std::endl;
         std::cout << "Huffman Error: Run 'huffman --help' for all supported options." << std::endl;
