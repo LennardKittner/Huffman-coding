@@ -12,24 +12,20 @@
 
 class HuffmanCoder {
 public:
-    int encode();
-    int decode();
-    HuffmanCoder(std::string, std::string, std::string);
+    std::shared_ptr<BitMap> encode();
+    std::shared_ptr<std::string> decode();
+    HuffmanCoder(std::string, std::string, std::shared_ptr<int>);
 
 private:
-    std::string input;
-    std::string output;
     std::string treePath;
-    std::map<char, std::vector<char>> result;
-    std::map<std::string, char> resultRev;
-    std::map<std::string, int> binary;
+    std::vector<char> fileContent;
     std::shared_ptr<Node> generateTree(const std::map<char, int>& map);
-    std::shared_ptr<std::map<char, BitMap>> buildLookUpTable(std::shared_ptr<Node>);
+    std::shared_ptr<std::map<char, BitMap>> buildLookupTable(std::shared_ptr<Node> tree);
     void traverseTree(std::shared_ptr<Node>, BitMap, std::shared_ptr<std::map<char, BitMap>>);
     std::shared_ptr<BitMap> encodeHistogram(const std::map<char, int>&);
     std::shared_ptr<std::map<char, int>> decodeHistogram(const std::vector<char>&, std::shared_ptr<int>);
-    void appendEncodeText(std::string, std::shared_ptr<BitMap> ,std::shared_ptr<std::map<char, BitMap>>);
-    std::string decodeText(std::shared_ptr<Node>, const std::vector<char>&, std::shared_ptr<int>);
+    void appendEncodeText(const std::vector<char>&, std::shared_ptr<BitMap>, std::shared_ptr<std::map<char, BitMap>>);
+    std::shared_ptr<std::string> decodeText(std::shared_ptr<Node>, const std::vector<char>&, int);
 };
 
 

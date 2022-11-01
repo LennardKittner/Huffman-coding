@@ -11,12 +11,22 @@
 
 namespace fs = std::filesystem;
 
-HuffmanCoder::HuffmanCoder(std::string input, std::string output, std::string tree) {
-    this->input = input;
-    this->output = output;
+HuffmanCoder::HuffmanCoder(std::string input, std::string tree, std::shared_ptr<int> err) {
     this->treePath = tree;
+    *err = 0;
+
+    char byte = 0;
+    std::ifstream input_file(input);
+    if (!input_file.is_open()) {
+        *err = 1;
+    }
+    while (input_file.get(byte)) {
+        fileContent.push_back(byte);
+    }
+    input_file.close();
 }
 
+// builds the lookup table by traversing the tree
 void HuffmanCoder::traverseTree(std::shared_ptr<Node> tree, BitMap buff, std::shared_ptr<std::map<char, BitMap>> result) {
     if (tree->content != 0) {
         (*result)[tree->content] = buff;
@@ -29,11 +39,11 @@ void HuffmanCoder::traverseTree(std::shared_ptr<Node> tree, BitMap buff, std::sh
     traverseTree(tree->right, rightBuffer, result);
 }
 
-std::shared_ptr<std::map<char, BitMap>> HuffmanCoder::buildLookUpTable(std::shared_ptr<Node> tree) {
-    auto lookUpTable = std::make_shared<std::map<char, BitMap>>();
+std::shared_ptr<std::map<char, BitMap>> HuffmanCoder::buildLookupTable(std::shared_ptr<Node> tree) {
+    auto lookupTable = std::make_shared<std::map<char, BitMap>>();
     BitMap buff;
-    traverseTree(tree, buff, lookUpTable);
-    return lookUpTable;
+    traverseTree(tree, buff, lookupTable);
+    return lookupTable;
 }
 
 std::shared_ptr<Node> HuffmanCoder::generateTree(const std::map<char, int>& histogram) {
@@ -72,7 +82,7 @@ std::shared_ptr<BitMap> HuffmanCoder::encodeHistogram(const std::map<char, int>&
 }
 
 // appends the encoded Text to content. This avoids coping the buffer later.
-void HuffmanCoder::appendEncodeText(std::string text, std::shared_ptr<BitMap> appendTo, std::shared_ptr<std::map<char, BitMap>> lookUpTable) {
+void HuffmanCoder::appendEncodeText(const std::vector<char>& text, std::shared_ptr<BitMap> appendTo, std::shared_ptr<std::map<char, BitMap>> lookUpTable) {
     // The first byte contains the number of bits to ignore at the end.
     // This is required because the encoded text may not be 8bit aligned and so padding is added.
     appendTo->pushBack((char) 0);
@@ -84,37 +94,20 @@ void HuffmanCoder::appendEncodeText(std::string text, std::shared_ptr<BitMap> ap
     appendTo->content[paddingIndex] = 8 - appendTo->count % 8;
 }
 
-//TODO: extract file read and write from encode
-int HuffmanCoder::encode() {
-    std::string text;
+std::shared_ptr<BitMap> HuffmanCoder::encode() {
     std::map<char, int> histogram;
-    char byte = 0;
-
-    std::ifstream input_file(input);
-    if (!input_file.is_open()) {
-        return 1;
-    }
-
-    while (input_file.get(byte)) {
-        text.push_back(byte);
-        if (histogram.count(byte) == 0) {
-            histogram[byte] = 0;
+    for (char curr : fileContent) {
+        if (histogram.count(curr) == 0) {
+            histogram[curr] = 0;
         }
-        histogram[byte]++;
+        histogram[curr]++;
     }
-    input_file.close();
 
     auto tree = generateTree(histogram);
-    auto lookUpTable = buildLookUpTable(tree);
+    auto lookUpTable = buildLookupTable(tree);
     auto encodedHistogram = encodeHistogram(histogram);
-    appendEncodeText(text, encodedHistogram, lookUpTable);
-
-    std::ofstream out(output, std::ios::out | std::ios::binary);
-
-    out.write((char*)&encodedHistogram->content[0], encodedHistogram->content.size() * sizeof(char));
-
-    out.close();
-    return 0;
+    appendEncodeText(fileContent, encodedHistogram, lookUpTable);
+    return encodedHistogram;
 }
 
 std::shared_ptr<std::map<char, int>> HuffmanCoder::decodeHistogram(const std::vector<char>& encodedContent, std::shared_ptr<int> endIndex) {
@@ -136,53 +129,32 @@ std::shared_ptr<std::map<char, int>> HuffmanCoder::decodeHistogram(const std::ve
     return histogram;
 }
 
-std::string HuffmanCoder::decodeText(std::shared_ptr<Node> tree, const std::vector<char>& encodedContent, std::shared_ptr<int> firstChar) {
+std::shared_ptr<std::string> HuffmanCoder::decodeText(std::shared_ptr<Node> tree, const std::vector<char>& encodedContent, int firstChar) {
     BitMap bitMap;
     bitMap.content = encodedContent;
     bitMap.count = encodedContent.size() * sizeof(char) * 8;
-    std::string result = "";
+    auto result = std::make_shared<std::string>("");
     auto curr = tree;
-    int paddingAtTheEnd = bitMap.content[*firstChar];
+    int paddingAtTheEnd = bitMap.content[firstChar];
     bitMap.count -= paddingAtTheEnd;
 
-    for (int i = (*firstChar+1) * sizeof(char) * 8; i < bitMap.count; i++) {
+    for (int i = (firstChar+1) * sizeof(char) * 8; i < bitMap.count; i++) {
         curr = bitMap.get(i) ? curr->right : curr->left;
         if (curr->content != 0) {
-            result += curr->content;
+            *result += curr->content;
             curr = tree;
         }
     }
     return result;
 }
 
-//TODO: extract file read and write from decode
-int HuffmanCoder::decode() {
-    std::string text;
-    std::vector<char> encodedContent;
-    char byte = 0;
-
-    std::ifstream input_file(input);
-    if (!input_file.is_open()) {
-        return 1;
-    }
-
-    while (input_file.get(byte)) {
-        encodedContent.push_back(byte);
-    }
-    input_file.close();
-
+std::shared_ptr<std::string> HuffmanCoder::decode() {
     auto histogramEndIndex = std::make_shared<int>(0);
-    auto histogram = decodeHistogram(encodedContent, histogramEndIndex);
+    auto histogram = decodeHistogram(fileContent, histogramEndIndex);
     auto tree = generateTree(*histogram);
-    auto decodedText = decodeText(tree, encodedContent, histogramEndIndex);
+    auto decodedText = decodeText(tree, fileContent, *histogramEndIndex);
 
-    std::ofstream out(output, std::ios::out | std::ios::binary);
-
-    out.write(&decodedText[0], decodedText.size() * sizeof(char));
-
-    out.close();
-
-    return 0;
+    return decodedText;
 }
 
 
