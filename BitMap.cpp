@@ -34,7 +34,7 @@ void BitMap::pushBack(BitMap bitMap) {
     }
 }
 
-// ignore first n bits
+// ignore first n bytes
 void BitMap::pushBack(int bits, char n) {
     for (int i = 8 * sizeof(int)-1 -n*8; i >= 0; i--) {
         pushBack((bool) ((bits >> i) & 1));

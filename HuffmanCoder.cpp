@@ -7,6 +7,7 @@
 #include <fstream>
 #include "Quicksorter.h"
 #include "MinHeap.h"
+#include <cmath>
 
 namespace fs = std::filesystem;
 
@@ -58,8 +59,8 @@ std::shared_ptr<BitMap> HuffmanCoder::encodeHistogram(const std::map<char, int>&
         if (x.second > max)
             max = x.second;
     }
-    // TODO: calc padding
-    char sizeInBytes = sizeof(int); // char is long enough
+
+    char sizeInBytes = std::ceil(std::log(max) / std::log(256)); // char is long enough
     char ignoreBytes = sizeof(int) - sizeInBytes;
     encodedHistogram->pushBack(sizeInBytes);
     encodedHistogram->pushBack((char) histogram.size());
@@ -71,17 +72,16 @@ std::shared_ptr<BitMap> HuffmanCoder::encodeHistogram(const std::map<char, int>&
 }
 
 // appends the encoded Text to content. This avoids coping the buffer later.
-void HuffmanCoder::appendEncodeText(std::string text, std::shared_ptr<BitMap> content, std::shared_ptr<std::map<char, BitMap>> lookUpTable) {
-    auto encodedText = std::make_shared<BitMap>();
+void HuffmanCoder::appendEncodeText(std::string text, std::shared_ptr<BitMap> appendTo, std::shared_ptr<std::map<char, BitMap>> lookUpTable) {
     // The first byte contains the number of bits to ignore at the end.
     // This is required because the encoded text may not be 8bit aligned and so padding is added.
-    encodedText->pushBack((char) 0);
-    unsigned long paddingIndex = encodedText->content.size();
+    appendTo->pushBack((char) 0);
+    unsigned long paddingIndex = appendTo->content.size()-1;
 
     for (char curr : text) {
-        encodedText->pushBack((*lookUpTable)[curr]);
+        appendTo->pushBack((*lookUpTable)[curr]);
     }
-    encodedText->content[paddingIndex] = 8 - encodedText->count % 8;
+    appendTo->content[paddingIndex] = 8 - appendTo->count % 8;
 }
 
 //TODO: extract file read and write from encode
