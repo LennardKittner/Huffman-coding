@@ -7,8 +7,14 @@ on:
     branches: [ main ]
 
 jobs:
-  ubuntu-build:
-    runs-on: ubuntu-latest
+  build:
+    runs-on: ${{ matrix.os }}
+
+    strategy:
+      matrix:
+        os: [ubuntu-latest, macos-12]
+        node-version: [12.x]
+
     steps:
       - name: Checkout
         uses: actions/checkout@v2.0.0
