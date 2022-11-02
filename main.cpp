@@ -11,7 +11,6 @@ std::string help = "Options\n"
                    "  --encode, -en     = Encode the input file and write the compressed file to the output file.\n"
                    "  --decode, -de     = Decode the input file and write the decompressed file to the output file.\n";
 
-//TODO: set up git actions
 //TODO: omit -i
 int main(int argc, char *argv[]) {
     auto err = std::make_shared<int>(1);
