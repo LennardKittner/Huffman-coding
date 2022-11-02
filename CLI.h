@@ -7,6 +7,8 @@
 
 #include <string>
 #include <map>
+#include <memory>
+
 
 enum Flag {
     HELP,

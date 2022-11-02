@@ -7,6 +7,7 @@
 
 
 #include <iostream>
+#include <memory>
 
 struct Node {
     int count;

@@ -7,6 +7,7 @@
 #include <fstream>
 #include "MinHeap.h"
 #include <cmath>
+#include <filesystem>
 
 namespace fs = std::filesystem;
 
