@@ -2,6 +2,7 @@
 // Created by Lennard on 02.11.22.
 //
 #include <string>
+#include <stdexcept>
 
 // https://bastian.rieck.me/blog/posts/2017/simple_unit_tests/
 #define ASSERT_TRUE( condition ) {                                                                   \
