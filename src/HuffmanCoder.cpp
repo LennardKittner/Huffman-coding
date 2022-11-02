@@ -27,7 +27,7 @@ HuffmanCoder::HuffmanCoder(std::string input, std::shared_ptr<int> err) {
 
 // builds the lookup table by traversing the tree
 void HuffmanCoder::traverseTree(std::shared_ptr<Node> tree, BitMap buff, std::shared_ptr<std::map<char, BitMap>> result) {
-    if (tree->content != 0) {
+    if (tree->left == nullptr || tree->right == nullptr) {
         (*result)[tree->content] = buff;
         return;
     }
@@ -139,7 +139,7 @@ std::shared_ptr<std::string> HuffmanCoder::decodeText(std::shared_ptr<Node> tree
 
     for (int i = (firstChar+1) * sizeof(char) * 8; i < bitMap.count; i++) {
         curr = bitMap.get(i) ? curr->right : curr->left;
-        if (curr->content != 0) {
+        if (curr->left == nullptr || curr->right == nullptr) {
             *result += curr->content;
             curr = tree;
         }
