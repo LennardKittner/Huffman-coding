@@ -2,9 +2,9 @@ name: C/C++ CI
 
 on:
   push:
-    branches: [ main ]
+    branches: [main, dev]
   pull_request:
-    branches: [ main ]
+    branches: [main, dev]
 
 jobs:
   build:
@@ -12,7 +12,7 @@ jobs:
 
     strategy:
       matrix:
-        os: [ubuntu-latest, macos-12]
+        os: [macos-12, ubuntu-latest]
 
     steps:
       - name: Checkout

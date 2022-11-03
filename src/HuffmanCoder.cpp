@@ -11,11 +11,11 @@
 
 namespace fs = std::filesystem;
 
-HuffmanCoder::HuffmanCoder(std::string input, std::shared_ptr<int> err) {
+HuffmanCoder::HuffmanCoder(std::string path, std::shared_ptr<int> err) {
     *err = 0;
 
     char byte = 0;
-    std::ifstream input_file(input);
+    std::ifstream input_file(path);
     if (!input_file.is_open()) {
         *err = 1;
     }
@@ -23,6 +23,11 @@ HuffmanCoder::HuffmanCoder(std::string input, std::shared_ptr<int> err) {
         fileContent.push_back(byte);
     }
     input_file.close();
+}
+
+HuffmanCoder::HuffmanCoder(std::vector<unsigned char> input, std::shared_ptr<int> err) {
+    *err = 0;
+    fileContent = input;
 }
 
 // builds the lookup table by traversing the tree
