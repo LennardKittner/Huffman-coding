@@ -12,12 +12,12 @@
 namespace fs = std::filesystem;
 
 HuffmanCoder::HuffmanCoder(std::string path, std::shared_ptr<int> err) {
-    *err = 0;
+    *err = SUCCESS;
 
     char byte = 0;
     std::ifstream input_file(path);
     if (!input_file.is_open()) {
-        *err = 1;
+        *err = FILE_ERROR;
     }
     while (input_file.get(byte)) {
         fileContent.push_back(byte);
@@ -26,7 +26,7 @@ HuffmanCoder::HuffmanCoder(std::string path, std::shared_ptr<int> err) {
 }
 
 HuffmanCoder::HuffmanCoder(std::vector<unsigned char> input, std::shared_ptr<int> err) {
-    *err = 0;
+    *err = SUCCESS;
     fileContent = input;
 }
 
@@ -69,7 +69,9 @@ std::shared_ptr<Node> HuffmanCoder::generateTree(const std::map<char, int>& hist
 std::shared_ptr<BitMap> HuffmanCoder::encodeHistogram(const std::map<char, int>& histogram) {
     auto encodedHistogram = std::make_shared<BitMap>();
     int max = -1;
+    char checkSum = 0;
     for (auto const &x : histogram) {
+        checkSum += x.second + x.first;
         if (x.second > max)
             max = x.second;
     }
@@ -78,6 +80,7 @@ std::shared_ptr<BitMap> HuffmanCoder::encodeHistogram(const std::map<char, int>&
     char ignoreBytes = sizeof(int) - sizeInBytes;
     encodedHistogram->pushBack(sizeInBytes);
     encodedHistogram->pushBack((char) histogram.size());
+    encodedHistogram->pushBack(checkSum);
     for (auto const &x : histogram) {
         encodedHistogram->pushBack(x.first);
         encodedHistogram->pushBack(x.second, ignoreBytes);
@@ -114,12 +117,15 @@ std::shared_ptr<BitMap> HuffmanCoder::encode() {
     return encodedHistogram;
 }
 
-std::shared_ptr<std::map<char, int>> HuffmanCoder::decodeHistogram(const std::vector<unsigned char>& encodedContent, std::shared_ptr<int> endIndex) {
+std::shared_ptr<std::map<char, int>> HuffmanCoder::decodeHistogram(const std::vector<unsigned char>& encodedContent, std::shared_ptr<int> endIndex, std::shared_ptr<int> err) {
     char sizeInBytes = encodedContent[0];
     char length = encodedContent[1];
+    char checkSum = encodedContent[2];
+    char sum = 0;
     auto histogram = std::make_shared<std::map<char, int>>();
-    int curr = 2;
-    for (char i = 0; i < length; i++) {
+    int curr = 3;
+    // i represents the current histogram entry and curr the current byte
+    for (char i = 0; i < length && curr < encodedContent.size(); i++) {
         char currentChar = encodedContent[curr];
         curr++;
         int count = 0;
@@ -128,12 +134,16 @@ std::shared_ptr<std::map<char, int>> HuffmanCoder::decodeHistogram(const std::ve
         }
         (*histogram)[currentChar] = count;
         curr += sizeInBytes;
+        sum += count + currentChar;
+    }
+    if (checkSum != sum) {
+        *err = HISTOGRAM_ERROR;
     }
     *endIndex = curr;
     return histogram;
 }
 
-std::shared_ptr<std::string> HuffmanCoder::decodeText(std::shared_ptr<Node> tree, const std::vector<unsigned char>& encodedContent, int firstChar) {
+std::shared_ptr<std::string> HuffmanCoder::decodeText(std::shared_ptr<Node> tree, const std::vector<unsigned char>& encodedContent, int firstChar, std::shared_ptr<std::map<char, int>> histogram, std::shared_ptr<int> err) {
     BitMap bitMap;
     bitMap.content = encodedContent;
     bitMap.count = encodedContent.size() * sizeof(char) * 8;
@@ -141,22 +151,41 @@ std::shared_ptr<std::string> HuffmanCoder::decodeText(std::shared_ptr<Node> tree
     auto curr = tree;
     int paddingAtTheEnd = bitMap.content[firstChar];
     bitMap.count -= paddingAtTheEnd;
-
+    std::map<char, int> textValidation;
+    // The histogram and textValidation is used to check if the decoded text is correct.
     for (int i = (firstChar+1) * sizeof(char) * 8; i < bitMap.count; i++) {
         curr = bitMap.get(i) ? curr->right : curr->left;
         if (curr->left == nullptr || curr->right == nullptr) {
             *result += curr->content;
+            // Count chars
+            if (textValidation.count(curr->content) == 0) {
+                textValidation[curr->content] = 0;
+            }
+            textValidation[curr->content]++;
             curr = tree;
+        }
+    }
+    // Validate text by comparing char counts
+    for (auto const &x : *histogram) {
+        if (textValidation[x.first] != (*histogram)[x.first]) {
+            *err = TEXT_ERROR;
+            break;
         }
     }
     return result;
 }
 
-std::shared_ptr<std::string> HuffmanCoder::decode() {
+std::shared_ptr<std::string> HuffmanCoder::decode(std::shared_ptr<int> err) {
+    *err = SUCCESS;
     auto histogramEndIndex = std::make_shared<int>(0);
-    auto histogram = decodeHistogram(fileContent, histogramEndIndex);
+    auto histogram = decodeHistogram(fileContent, histogramEndIndex, err);
+    if (*err != SUCCESS) {
+        return std::make_shared<std::string>("");
+    }
     auto tree = generateTree(*histogram);
-    auto decodedText = decodeText(tree, fileContent, *histogramEndIndex);
-
+    auto decodedText = decodeText(tree, fileContent, *histogramEndIndex, histogram, err);
+    if (*err != SUCCESS) {
+        return std::make_shared<std::string>("");
+    }
     return decodedText;
 }

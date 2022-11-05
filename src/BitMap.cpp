@@ -29,6 +29,7 @@ void BitMap::pushBack(BitMap bitMap) {
         return;
     }
 
+    // This may be slow but easy
     for (int i = 0; i < bitMap.count; i++) {
         pushBack((bool) bitMap.get(i));
     }

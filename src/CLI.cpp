@@ -12,54 +12,40 @@ CLI::CLI(int argc, char *argv[]) {
     this->argc = argc;
     this->argv = argv;
     args = parse();
-    if (args->count(OUT) == 0) {
-        (*args)[OUT] = "./out.huff";
-    }
-    if (args->count(ENCODE) == 0 && args->count(DECODE) == 0) {
-        (*args)[ENCODE] = "";
-    }
-   // if (args->count(IN) == 0 && argc > 2) {
-   //     (*args)[IN] = argv[1];
-   // }
 }
 
-int CLI::parseCommand(char* arguments[], int len, std::shared_ptr<std::map<Flag, std::string>> commands) {
+int CLI::parseCommand(char* arguments[], std::shared_ptr<std::map<Flag, std::string>> commands) {
     Flag flag;
-    int offset = 2;
-    std::string arg1(arguments[0]);
-    std::string arg2(len > 1 ? arguments[1] : "");
-    fs::path arg2File(arg2);
-    bool arg2Exists = len > 1 && fs::exists(arg2File);
+    std::string arg(arguments[0]);
+    fs::path argFile(arg);
+    bool argExists = fs::exists(argFile);
+    int retCode = 0;
 
-    if (arg1 == "-h" || arg1 == "--help") {
+    if (arg == "-h" || arg == "--help") {
         flag = HELP;
-        arg2 = "";
-        offset = len;
-    } else if (arg1 == "-o" || arg1 == "--out") {
+        retCode = 1;
+    } else if (arg == "-en" || arg == "--encode") {
+        flag = ENCODE;
+    } else if (arg == "-de" || arg == "--decode") {
+        flag = DECODE;
+    } else if (arg[0] == '-') {
+        flag = ERROR;
+        retCode = 2;
+    } else if (commands->count(IN)) {
         flag = OUT;
-    } else if (arg1 == "-i" || arg1 == "--in") {
-        if (!arg2Exists) {
+    } else if (!commands->count(IN)) {
+        if (!argExists) {
             flag = ERRORFILE;
-            offset = len;
+            retCode = 3;
         } else {
             flag = IN;
         }
-    } else if (arg1 == "-en" || arg1 == "--encode") {
-        flag = ENCODE;
-        arg2 = "";
-        offset = 1;
-    } else if (arg1 == "-de" || arg1 == "--decode") {
-        flag = DECODE;
-        arg2 = "";
-        offset = 1;
     } else {
         flag = ERROR;
-        arg2 = arg1 + " " + arg2;
-        offset = len;
+        retCode = 4;
     }
-    (*commands)[flag] = arg2;
-
-    return offset;
+    (*commands)[flag] = arg;
+    return retCode;
 }
 
 std::shared_ptr<std::map<Flag, std::string>> CLI::parse() {
@@ -70,10 +56,20 @@ std::shared_ptr<std::map<Flag, std::string>> CLI::parse() {
         return commands;
     }
 
-    int i = 1;
-    while (i < argc) {
-        i += parseCommand(argv+i, argc-i, commands);
+    for (int i = 1; i < argc; i++) {
+        if (parseCommand(argv+i, commands) != 0) {
+            break;
+        }
     }
 
+    if (commands->count(HELP) || commands->count(ERROR) || commands->count(ERRORFILE)) {
+        return commands;
+    }
+    if (commands->count(OUT) == 0) {
+        (*commands)[OUT] = "./out.huff";
+    }
+    if (commands->count(ENCODE) == 0 && commands->count(DECODE) == 0) {
+        (*commands)[ENCODE] = "";
+    }
     return commands;
 }
