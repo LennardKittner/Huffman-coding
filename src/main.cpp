@@ -8,7 +8,7 @@ std::string help = "Usage\n\n"
                    "  huffman [options]  <path-to-source>  <path-to-target>\n"
                    "  huffman [options]  <path-to-source> \n\n"
                    "  Specify a source file to encode / decode it and write the result to the target path.\n"
-                   "  If not specified the target path will be set to \"./out.huff\". If not specified the \"-en\" option is set.\n\n"
+                   "  If not specified the target path will be set to \"./out.huff\". By default the \"-en\" option is set.\n\n"
 
                    "Options\n"
                    "  --help,   -h      = Print help.\n"
