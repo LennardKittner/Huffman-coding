@@ -32,7 +32,7 @@ HuffmanCoder::HuffmanCoder(std::vector<unsigned char> input, std::shared_ptr<int
 
 // builds the lookup table by traversing the tree
 void HuffmanCoder::traverseTree(std::shared_ptr<Node> tree, BitMap buff, std::shared_ptr<std::map<char, BitMap>> result) {
-    if (tree->left == nullptr || tree->right == nullptr) {
+    if (tree->left == nullptr || tree->right == nullptr || tree->content < 0) {
         (*result)[tree->content] = buff;
         return;
     }

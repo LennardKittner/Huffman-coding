@@ -43,6 +43,10 @@ int main(int argc, char *argv[]) {
         std::ofstream out((*cli.args)[OUT], std::ios::out | std::ios::binary);
         out.write((char*)&result->content[0], result->content.size() * sizeof(char));
         out.close();
+        if (!out) {
+            std::cout << "Huffman Error: The result could not be written to disk."<< std::endl;
+            return FILE_ERROR;
+        }
     } else if (cli.args->count(DECODE)) {
         auto result = coder.decode(err);
         switch (*err) {
@@ -56,6 +60,10 @@ int main(int argc, char *argv[]) {
         std::ofstream out((*cli.args)[OUT], std::ios::out | std::ios::binary);
         out.write(&(*result)[0], result->size() * sizeof(char));
         out.close();
+        if (!out) {
+            std::cout << "Huffman Error: The result could not be written to disk."<< std::endl;
+            return FILE_ERROR;
+        }
     }
 
     return 0;
